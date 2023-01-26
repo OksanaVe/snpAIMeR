@@ -34,3 +34,43 @@ And upon completion, summary plots like the following are generated:
 ![assignment_success](Rate_vs_NumOfMarkers_SET15_wild_rearing_356inds.png)
 
 Additionally upon completion, output csv files are generated with marker assignment rates and summarized results. 
+
+### Toy dataset
+A toy dataset of 15 SNPs and 176 individuals is provided here. The following commands and prompt responses will facilitate analyzing this dataset.
+```
+> source("SNP_check_v0.1.R")
+> SNP_check()
+Enter path to working directory: ./
+Enter path to STRUCTURE file: SNP_check_toy_dataset_176inds_15SNPs.str
+
+ How many genotypes are there? 
+176
+
+ How many markers are there? 
+15
+
+ Which column contains labels for genotypes ('0' if absent)? 
+1
+
+ Which column contains the population factor ('0' if absent)? 
+2
+
+ Which other optional columns should be read (press 'return' when done)? 
+1: 
+
+ Which row contains the marker names ('0' if absent)? 
+1
+
+ Are genotypes coded by a single row (y/n)? 
+n
+
+ Converting data from a STRUCTURE .stru file to a genind object... 
+
+Data file contains  15  markers
+File contains the following group definitions:
+group_1 group_2 
+    120      56 
+Minimum number of markers in combination: 10
+Maximum number of markers in combination: 15
+Enter assignment rate threshold (minimum rate of successful assignments): 0.9
+```
