@@ -11,7 +11,7 @@ Maximum number of markers in combination:
 Enter assignment rate threshold (minimum rate of successful assignments): 
 ```
 
-With those inputs, it will randomize combinations of SNPs between the specified minimum and maximum numbers and use a priori population delimitations (via the .str file) to assess whether those SNP combinations lead to successful reassignment of a test portion of the data (generally 25 % of individuals in the dataset). 
+With those inputs, it will randomize combinations of SNPs between the specified minimum and maximum numbers and use a priori population delimitations (via the .str file) to assess whether those SNP combinations lead to successful reassignment of a test portion of the data (generally 25 % of individuals in the dataset). Images like the following are generated:
 
 ![assignment_success](Rate_vs_NumOfMarkers_SET15_wild_rearing_356inds.png)
 
