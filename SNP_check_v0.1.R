@@ -33,11 +33,11 @@ for(i in 1:ncol(loc_comb)){
 tryCatch({
 rate <- c()
 test = ludens[,loc=loc_comb[,i]]
-for(j in 1:50) {
+for(j in 1:1000) {
 	tryCatch({
     pop_counts <- table(ludens@pop)
     counts = as.vector(pop_counts)
-    pop_sample = sort(round(0.9*counts, 0))
+    pop_sample = sort(round(0.75*counts, 0))
     #kept.id <- runif(100, min=1, max=120)
     kept.id <- unlist(tapply(1:nInd(test), pop(test), function(e) sample(e, pop_sample,replace=FALSE)))
     x <- test[kept.id]
