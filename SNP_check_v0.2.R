@@ -25,8 +25,16 @@ all_loci = data.frame(markers=character(), avg_success_rate=double())
 good_loci = data.frame(markers=character(), avg_success_rate=double())
 mn_rate = data.frame(markers=integer(), mean_rate=double())
 
-for(n in min_loc_num:max_loc_num) {
+if(min_loc_num == 1) {
+	range = c(min_loc_num:max_loc_num)
+	} else if(min_loc_num > 1) {
+	range = c(1, min_loc_num:max_loc_num)
+	} else if(min_loc_num < 1) {
+	print("Incorrect number of markers provided")
+	}
 
+for(n in range) {
+rate_ls <- list()
 loc_comb = combn(loci,n)
 
 for(i in 1:ncol(loc_comb)){
@@ -43,6 +51,8 @@ for(j in 1:1000) {
     a <- mean(as.character(pred.sup$assign)==as.character(pop(x.sup)))
     rate <- c(rate, a)}, error=function(e){})
 }
+rt = list(rate)
+rate_ls <- append(rate_ls, rt)
 mean_rate <- sum(rate)/length(rate)
 print(paste0("Combination ", i))
 markers = toString(loc_comb[,i])
@@ -55,10 +65,22 @@ if(mean_rate >= rate_threshold) {
 }, error=function(e){})
 }
 title <- paste0("Assignment rate for ", n, " marker(s)")
-hist(rate, main=title)
+if(n == 1 && length(rate_ls) < 21) {
+	boxplot(rate_ls, col="steelblue", main=title) 
+	mtext(paste("Mean =", round(mean(rate), 4)), side=3, col="red")
+	} else if(n == 1 && length(rate_ls) >= 21) {
+		y = split(rate_ls, rep(1:ceiling(length(rate_ls)/20), each=20)[1:length(rate_ls)])
+		for(w in 1:length(y)){
+		boxplot(y[[w]], col="steelblue", main=title)
+		boxplot(y[[w]], col="steelblue", main=title)
+		}
+	}
+	else if(n > 1) {hist(rate, main=title) 
 abline(v = mean(rate), col = "red", lwd = 2)
 mtext(paste("Mean =", round(mean(rate), 4)), side=3, col="red")
+}
 mn_rate[nrow(mn_rate)+1,] = c(n,mean(rate))
+
 }
 plot(mn_rate$markers, mn_rate$mean_rate, col="red", xlab="number of markers in combination", ylab="avg assignment rate", pch=16, type="b",lwd=1.5,lty=3, main="Avg assignment rate vs number of markers")
 write.csv(all_loci, "All_results_marker_assignment_rate.csv")
