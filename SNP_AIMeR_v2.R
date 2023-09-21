@@ -28,10 +28,10 @@ SNP_AIMeR <- function(config_file) {
   column_population_assignments <- as.integer(config$column_population_assignments)
   row_markernames <- as.integer(config$row_markernames)
   column_other_info <- as.integer(config$column_other_info)
-  optional_population_info <- config$optional_population_info
-  genotype_character_separator <- config$genotype_character_separator
+  #optional_population_info <- config$optional_population_info
+  #genotype_character_separator <- config$genotype_character_separator
   
-	ludens <- read.structure(file, n.ind=number_of_individuals, n.loc=number_of_loci, onerowperind=config$one_data_row_per_individual, col.lab=column_sample_IDs, col.pop=column_population_assignments, col.others=column_other_info, NA.char=config$no_genotype_character, pop=optional_population_info, sep=genotype_character_separator, ask=FALSE, quiet=FALSE)
+	ludens <- read.structure(file, n.ind=number_of_individuals, n.loc=number_of_loci, onerowperind=config$one_data_row_per_individual, col.lab=column_sample_IDs, col.pop=column_population_assignments, col.others=column_other_info, NA.char=config$no_genotype_character, pop=config$optional_population_info, sep=config$genotype_character_separator, ask=FALSE, quiet=FALSE)
 
 	loci=locNames(ludens)
 	cat("Data file contains ", length(loci), " markers\n") 
