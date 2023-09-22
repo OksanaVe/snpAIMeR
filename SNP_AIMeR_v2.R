@@ -17,8 +17,8 @@ SNP_AIMeR <- function(config_file) {
   config = yaml.load_file(config_file)
   
   # SNP_AIMeR settings
-  min_range <- as.integer(config$min_range)
-  max_range <- as.integer(config$max_range)
+  min_loc_num <- as.integer(config$min_range)
+  max_loc_num <- as.integer(config$max_range)
   assignment_rate_threshold <- as.double(config$assignment_rate_threshold)
   # adegenet::read.structure settings
   file <- config$structure_file
@@ -28,8 +28,6 @@ SNP_AIMeR <- function(config_file) {
   column_population_assignments <- as.integer(config$column_population_assignments)
   row_markernames <- as.integer(config$row_markernames)
   column_other_info <- as.integer(config$column_other_info)
-  #optional_population_info <- config$optional_population_info
-  #genotype_character_separator <- config$genotype_character_separator
   
 	ludens <- read.structure(file, n.ind=number_of_individuals, n.loc=number_of_loci, onerowperind=config$one_data_row_per_individual, col.lab=column_sample_IDs, col.pop=column_population_assignments, col.others=column_other_info, NA.char=config$no_genotype_character, pop=config$optional_population_info, sep=config$genotype_character_separator, ask=FALSE, quiet=FALSE)
 
@@ -106,18 +104,19 @@ SNP_AIMeR <- function(config_file) {
 			mtext(paste("Mean =", round(mean(results), 4)), side=3, col="red")
 		}
 		mn_rate[nrow(mn_rate)+1,] = c(n,mean(results))
+		
+		df <- cbind(mn_rate$markers, mn_rate$mean_rate)
+		colnames(df) <- c("group","mean")
+		write.csv(df, "Combination_assignment_rate_means.csv", row.names=FALSE)
+	
+		write.csv(all_loci, "All_results_marker_assignment_rate.csv")
+		write.csv(good_loci, "Above_threshold_marker_assignment_rate.csv")
 
 	}
-	df <- cbind(mn_rate$markers, mn_rate$mean_rate)
-	colnames(df) <- c("group","mean")
-	write.csv(df, "Combination_assignment_rate_means.csv", row.names=FALSE)
-
-	plot(mn_rate$markers, mn_rate$mean_rate, col="red", xlab="number of markers in combination", ylab="avg assignment rate", pch=16, type="b",lwd=1.5,lty=3, main="Avg assignment rate vs number of markers")
+  plot(mn_rate$markers, mn_rate$mean_rate, col="red", xlab="number of markers in combination", ylab="avg assignment rate", pch=16, type="b",lwd=1.5,lty=3, main="Avg assignment rate vs number of markers")
 	dev.copy(pdf, paste("Combinations.pdf"))
 	dev.off()
 
-	write.csv(all_loci, "All_results_marker_assignment_rate.csv")
-	write.csv(good_loci, "Above_threshold_marker_assignment_rate.csv")
 	cat(nrow(good_loci), " marker combinations passed threshold")
 	
 	suppressWarnings(parallel::stopCluster(cl = my.cluster))
