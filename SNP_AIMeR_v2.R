@@ -20,6 +20,7 @@ SNP_AIMeR <- function(config_file) {
   min_loc_num <- as.integer(config$min_range)
   max_loc_num <- as.integer(config$max_range)
   assignment_rate_threshold <- as.double(config$assignment_rate_threshold)
+  cv_replicates <- as.integer(config$cross_validation_replicates)
   # adegenet::read.structure settings
   file <- config$structure_file
   number_of_individuals <- as.integer(config$number_of_individuals)
@@ -36,10 +37,13 @@ SNP_AIMeR <- function(config_file) {
 	cat("File contains the following group definitions:")
 	print(table(ludens@pop))
 
-	all_loci = data.frame(markers=character(), avg_success_rate=double())
-	good_loci = data.frame(markers=character(), avg_success_rate=double())
-	mn_rate = data.frame(markers=integer(), mean_rate=double())
+	df = data.frame(markers=character(), avg_success_rate=double())
+  write.table(df,"Group_assignment_rate_means.csv", row.names=FALSE, sep = ",")
+	write.table(df,"All_results_marker_assignment_rate.csv", row.names=FALSE, sep = ",")
+	write.table(df,"Above_threshold_marker_assignment_rate.csv", row.names=FALSE, sep = ",")
 
+	mn_rate = data.frame(markers=integer(), mean_rate=double())
+	
 	if(min_loc_num == 1) {
 		range = c(min_loc_num:max_loc_num)
 	} 
@@ -53,12 +57,14 @@ SNP_AIMeR <- function(config_file) {
 	for(n in range) {
 		rate_ls <- list()
 		loc_comb = combn(loci,n)
-
+		all_loci = data.frame(markers=character(), avg_success_rate=double())
+		good_loci = data.frame(markers=character(), avg_success_rate=double())
+		
 		for(i in 1:ncol(loc_comb)){
 			tryCatch({
 				test = ludens[,loc=loc_comb[,i]]
 
-				results <- foreach(j=1:100, .combine='c') %dopar% {
+				results <- foreach(j=1:cv_replicates, .combine='c') %dopar% {
 					tryCatch({
 						kept.id <- unlist(tapply(1:adegenet::nInd(test), adegenet::pop(test), function(e) sample(e, round(0.75*length(e),0), replace=FALSE)))
 						x <- test[kept.id]
@@ -78,7 +84,7 @@ SNP_AIMeR <- function(config_file) {
 				cat(markers, "\n")
 				cat(mean_rate, "\n")
 				all_loci[nrow(all_loci)+1,] = c(markers, mean_rate)
-				if(mean_rate >= rate_threshold) {
+				if(mean_rate >= assignment_rate_threshold) {
 					good_loci[nrow(good_loci)+1,] = c(markers, mean_rate)
 				}
 			}, error=function(e){})
@@ -105,19 +111,18 @@ SNP_AIMeR <- function(config_file) {
 		}
 		mn_rate[nrow(mn_rate)+1,] = c(n,mean(results))
 		
-		df <- cbind(mn_rate$markers, mn_rate$mean_rate)
-		colnames(df) <- c("group","mean")
-		write.csv(df, "Combination_assignment_rate_means.csv", row.names=FALSE)
-	
-		write.csv(all_loci, "All_results_marker_assignment_rate.csv")
-		write.csv(good_loci, "Above_threshold_marker_assignment_rate.csv")
-
+		df1 <- cbind(mn_rate$markers, mn_rate$mean_rate)
+		colnames(df1) <- c("group","mean")
+		write.table(df1, "Group_assignment_rate_means.csv", row.names=FALSE, col.names=FALSE, append=TRUE, sep = ",")
+		
+		write.table(all_loci, "All_results_marker_assignment_rate.csv", row.names=FALSE, col.names=FALSE, append=TRUE, sep = ",")
+		write.table(good_loci, "Above_threshold_marker_assignment_rate.csv", row.names=FALSE, col.names=FALSE, append=TRUE, sep = ",")
 	}
   plot(mn_rate$markers, mn_rate$mean_rate, col="red", xlab="number of markers in combination", ylab="avg assignment rate", pch=16, type="b",lwd=1.5,lty=3, main="Avg assignment rate vs number of markers")
-	dev.copy(pdf, paste("Combinations.pdf"))
+	dev.copy(pdf, paste("Combination_assignment_rate_means.pdf"))
 	dev.off()
 
-	cat(nrow(good_loci), " marker combinations passed threshold")
-	
+	cat(nrow(good_loci), "marker combinations passed threshold","\n")
+
 	suppressWarnings(parallel::stopCluster(cl = my.cluster))
 }
