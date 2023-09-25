@@ -5,6 +5,8 @@ SNP_AIMeR <- function(config_file) {
   require(foreach)
   require(adegenet)
   require(pegas)
+  require(tidyr)
+  require(ggplot2)
 
   # Setup backend to use many processors
   print(parallel::detectCores())
@@ -30,14 +32,14 @@ SNP_AIMeR <- function(config_file) {
   row_markernames <- as.integer(config$row_markernames)
   column_other_info <- as.integer(config$column_other_info)
   
-	ludens <- read.structure(file, n.ind=number_of_individuals, n.loc=number_of_loci, onerowperind=config$one_data_row_per_individual, col.lab=column_sample_IDs, col.pop=column_population_assignments, col.others=column_other_info, NA.char=config$no_genotype_character, pop=config$optional_population_info, sep=config$genotype_character_separator, ask=FALSE, quiet=FALSE)
+	ludens <- read.structure(file, n.ind=number_of_individuals, n.loc=number_of_loci, onerowperind=config$one_data_row_per_individual, col.lab=column_sample_IDs, col.pop=column_population_assignments, col.others=column_other_info, row.marknames=row_markernames, NA.char=config$no_genotype_character, pop=config$optional_population_info, sep=config$genotype_character_separator, ask=FALSE, quiet=FALSE)
 
 	loci=locNames(ludens)
-	cat("Data file contains ", length(loci), " markers\n") 
+	cat("Data file contains", length(loci), "markers\n") 
 	cat("File contains the following group definitions:")
 	print(table(ludens@pop))
 
-	df = data.frame(markers=character(), avg_success_rate=double())
+	df = data.frame(marker=character(), avg_success_rate=double())
   write.table(df,"Group_assignment_rate_means.csv", row.names=FALSE, sep = ",")
 	write.table(df,"All_results_marker_assignment_rate.csv", row.names=FALSE, sep = ",")
 	write.table(df,"Above_threshold_marker_assignment_rate.csv", row.names=FALSE, sep = ",")
@@ -53,7 +55,7 @@ SNP_AIMeR <- function(config_file) {
 	else if(min_loc_num < 1) {
 		print("Incorrect number of markers provided")
 		}
-
+	
 	for(n in range) {
 		rate_ls <- list()
 		loc_comb = combn(loci,n)
@@ -77,6 +79,7 @@ SNP_AIMeR <- function(config_file) {
 				}
 				rt = list(results)
 				rate_ls <- append(rate_ls, rt)
+				print(rate_ls)
 				mean_rate <- sum(results)/length(results)
 				print(paste0("Combination ", i))
 				markers = toString(loc_comb[,i])
@@ -88,39 +91,55 @@ SNP_AIMeR <- function(config_file) {
 				}
 			}, error=function(e){})
 		}
-		title <- paste0("Assignment_rate_for_", n, "_marker(s)")
-		if(n == 1 && length(rate_ls) < 16) {
-		  pdf(paste0(title, ".pdf"))
-		  boxplot_fig <- boxplot(rate_ls, col="steelblue", main=title) 
-		  boxplot_fig <- mtext(paste("Mean =", round(mean(results), 4)), side=3, col="red")
-		  print(boxplot_fig)
-		  dev.off()
-		} 		
-		else if(n == 1 && length(rate_ls) >= 16) {
-			y = split(rate_ls, rep(1:ceiling(length(rate_ls)/15), each=15)[1:length(rate_ls)])
-			pdf(paste0(title, ".pdf"))
-			for(w in 1:length(y)){
-			  boxplot_fig <- boxplot(y[[w]], col="steelblue", main=title)
-			}
-			print(boxplot_fig)
-			dev.off()
-		}
+		# Make box plot of each marker's cross-validation replicates
+		if(n == 1) {
+		  #Make the assignment rate tidy
+		  rate_df <- as.data.frame(do.call(rbind, rate_ls))
+		  markerID <- rownames(rate_df)    # this gives row numbers, not marker names
+		  rate_df <- cbind(markerID=markerID, rate_df)
+		  rate_df <- pivot_longer(rate_df, -markerID, names_prefix="V", names_to="replicate", values_to="rate")
+		  # Group the data by marker
+		  rate_df_group_by_markerID <- rate_df %>% group_by(markerID)
+		  # Get mean of all markers/replicates
+		  mean_results <- round(mean(results), 4)
+		  title <- paste0("Mean = ", mean_results)
+		  
+	    # need to add if statement for numeric vs character markerID
+		  #each_marker_plot <- ggplot(rate_df_group_by_markerID, aes(x=reorder(markerID, sort(as.numeric(markerID))), y=rate)) +
+		  each_marker_plot <- ggplot(rate_df_group_by_markerID, aes(x=markerID, y=rate)) +
+		  geom_boxplot(outlier.size=0.5) +
+	    labs(title=title, x="Marker", y="Assignment rate") +
+	    theme(panel.border=element_rect(color="black", fill=NA, linewidth=1),
+	          axis.text.x = element_text(angle = 45, hjust = 1))
+	    
+	    ggsave("Assignment_rate_for_each_marker.pdf")
+	    print(each_marker_plot)
+	   }
+    # Histogram of rate distribution. Only prints to screen (intentional)
 		else if(n > 1) {hist(results, main=title) 
 			abline(v = mean(results), col = "red", lwd = 2)
 			mtext(paste("Mean =", round(mean(results), 4)), side=3, col="red")
 		}
-		mn_rate[nrow(mn_rate)+1,] = c(n,mean(results))
-		
+		# Get the mean assignment rate for each size group
+		mn_rate[nrow(mn_rate)+1,] = c(n, mean(results))
 		df1 <- cbind(mn_rate$markers, mn_rate$mean_rate)
-		colnames(df1) <- c("group","mean")
-		write.table(df1, "Group_assignment_rate_means.csv", row.names=FALSE, col.names=FALSE, append=TRUE, sep = ",")
+		colnames(df1) <- c("combination","mean")
+		df1 <- as.data.frame(df1)
 		
+		write.table(df1, "Group_assignment_rate_means.csv", row.names=FALSE, col.names=FALSE, append=TRUE, sep = ",")
 		write.table(all_loci, "All_results_marker_assignment_rate.csv", row.names=FALSE, col.names=FALSE, append=TRUE, sep = ",")
 		write.table(good_loci, "Above_threshold_marker_assignment_rate.csv", row.names=FALSE, col.names=FALSE, append=TRUE, sep = ",")
 	}
-	pdf("Combination_assignment_rate_means.pdf")
-	print(plot(mn_rate$markers, mn_rate$mean_rate, col="red", xlab="number of markers in combination", ylab="avg assignment rate", pch=16, type="b",lwd=1.5,lty=3, main="Avg assignment rate vs number of markers"))
-	dev.off()
+  # Make line plot of combination assignment rate means
+	if (nrow(df1) > 1) {
+	  combination_means <- ggplot(df1, aes(x=combination, y=mean)) +
+      geom_line() +
+	    geom_point() +
+	    labs(title="Average assignment rate vs number of markers", x="Number of markers in combination", y="Average assignment rate") +
+	    theme(panel.border=element_rect(color="black", fill=NA, linewidth=1))
+	  ggsave("Combination_assignment_rate_means.pdf")
+	  print(combination_means)
+	}
 
 	cat(nrow(good_loci), "marker combinations passed threshold","\n")
 
