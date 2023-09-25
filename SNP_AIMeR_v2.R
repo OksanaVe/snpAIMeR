@@ -1,11 +1,11 @@
 SNP_AIMeR <- function(config_file) {
-  require(adegenet)
-  require(pegas)
-  require(foreach)
+  library(yaml)
   require(doParallel)
   require(parallel)
-  library(yaml)
-  
+  require(foreach)
+  require(adegenet)
+  require(pegas)
+
   # Setup backend to use many processors
   print(parallel::detectCores())
   n.cores <- parallel::detectCores() - 1
@@ -75,7 +75,6 @@ SNP_AIMeR <- function(config_file) {
 					}, error=function(e){})
 					return(a)
 				}
-
 				rt = list(results)
 				rate_ls <- append(rate_ls, rt)
 				mean_rate <- sum(results)/length(results)
@@ -89,21 +88,22 @@ SNP_AIMeR <- function(config_file) {
 				}
 			}, error=function(e){})
 		}
-		title <- paste0("Assignment rate for ", n, " marker(s)")
+		title <- paste0("Assignment_rate_for_", n, "_marker(s)")
 		if(n == 1 && length(rate_ls) < 16) {
-			boxplot(rate_ls, col="steelblue", main=title) 
-			mtext(paste("Mean =", round(mean(results), 4)), side=3, col="red")
-			dev.copy(pdf, paste0(title, ".pdf"))
-			dev.off()
-		} 
+		  pdf(paste0(title, ".pdf"))
+		  boxplot_fig <- boxplot(rate_ls, col="steelblue", main=title) 
+		  boxplot_fig <- mtext(paste("Mean =", round(mean(results), 4)), side=3, col="red")
+		  print(boxplot_fig)
+		  dev.off()
+		} 		
 		else if(n == 1 && length(rate_ls) >= 16) {
 			y = split(rate_ls, rep(1:ceiling(length(rate_ls)/15), each=15)[1:length(rate_ls)])
+			pdf(paste0(title, ".pdf"))
 			for(w in 1:length(y)){
-				boxplot(y[[w]], col="steelblue", main=title)
-				boxplot(y[[w]], col="steelblue", main=title)
-				dev.copy(pdf, paste0(title, ".pdf"))
-				dev.off()
+			  boxplot_fig <- boxplot(y[[w]], col="steelblue", main=title)
 			}
+			print(boxplot_fig)
+			dev.off()
 		}
 		else if(n > 1) {hist(results, main=title) 
 			abline(v = mean(results), col = "red", lwd = 2)
@@ -118,8 +118,8 @@ SNP_AIMeR <- function(config_file) {
 		write.table(all_loci, "All_results_marker_assignment_rate.csv", row.names=FALSE, col.names=FALSE, append=TRUE, sep = ",")
 		write.table(good_loci, "Above_threshold_marker_assignment_rate.csv", row.names=FALSE, col.names=FALSE, append=TRUE, sep = ",")
 	}
-  plot(mn_rate$markers, mn_rate$mean_rate, col="red", xlab="number of markers in combination", ylab="avg assignment rate", pch=16, type="b",lwd=1.5,lty=3, main="Avg assignment rate vs number of markers")
-	dev.copy(pdf, paste("Combination_assignment_rate_means.pdf"))
+	pdf("Combination_assignment_rate_means.pdf")
+	print(plot(mn_rate$markers, mn_rate$mean_rate, col="red", xlab="number of markers in combination", ylab="avg assignment rate", pch=16, type="b",lwd=1.5,lty=3, main="Avg assignment rate vs number of markers"))
 	dev.off()
 
 	cat(nrow(good_loci), "marker combinations passed threshold","\n")
