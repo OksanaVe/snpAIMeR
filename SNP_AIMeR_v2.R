@@ -79,7 +79,6 @@ SNP_AIMeR <- function(config_file) {
 				}
 				rt = list(results)
 				rate_ls <- append(rate_ls, rt)
-				print(rate_ls)
 				mean_rate <- sum(results)/length(results)
 				print(paste0("Combination ", i))
 				markers = toString(loc_comb[,i])
