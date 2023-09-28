@@ -84,13 +84,17 @@ if(mean_rate >= rate_threshold) {
 }
 title <- paste0("Assignment rate for ", n, " marker(s)")
 if(n == 1 && length(rate_ls) < 16) {
-	boxplot(rate_ls, col="steelblue", main=title) 
+	boxplot(rate_ls, col="steelblue", main=title, xaxt = "n")
+	text(seq_along(loc_comb), par("usr")[3], labels = loc_comb, srt = 45, adj = c(1.1, 1.1), xpd = TRUE)
 	mtext(paste("Mean =", round(mean(results), 4)), side=3, col="red")
 	} else if(n == 1 && length(rate_ls) >= 16) {
 		y = split(rate_ls, rep(1:ceiling(length(rate_ls)/15), each=15)[1:length(rate_ls)])
+		y_names = split(loc_comb, rep(1:ceiling(length(loc_comb)/15), each=15)[1:length(loc_comb)])
 		for(w in 1:length(y)){
-		boxplot(y[[w]], col="steelblue", main=title)
-		boxplot(y[[w]], col="steelblue", main=title)
+		boxplot(y[[w]], col="steelblue", main=title, xaxt = "n")
+		text(seq_along(y_names[[w]]), par("usr")[3], labels = y_names[[w]], srt = 45, adj = c(1.1, 1.1), xpd = TRUE)
+		mtext(paste("Mean =", round(mean(results), 4)), side=3, col="red")
+
 		}
 	}
 	else if(n > 1) {hist(results, main=title) 
@@ -107,3 +111,4 @@ cat(nrow(good_loci), " marker combinations passed threshold")
 }
 
 parallel::stopCluster(cl = my.cluster)
+	     
