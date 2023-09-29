@@ -5,9 +5,8 @@ SNP_AIMeR <- function(config_file) {
   require(foreach)
   require(adegenet)
   require(pegas)
-  require(tidyr)
-  require(ggplot2)
-
+  require(tidyverse)
+  
   # Setup backend to use many processors
   print(parallel::detectCores())
   n.cores <- parallel::detectCores() - 1
@@ -93,24 +92,28 @@ SNP_AIMeR <- function(config_file) {
 		# Make box plot of each marker's cross-validation replicates
 		if(n == 1) {
 		  #Make the assignment rate tidy
+		  loc_comb_list <- as.list(loc_comb)
+		  loc_comb_df <- as.data.frame(do.call(rbind, loc_comb_list))
+		  #print("LOC_COMB_DF")
+		  #print(loc_comb_df)
+		  names(loc_comb_df)[1] <- "markerID"
 		  rate_df <- as.data.frame(do.call(rbind, rate_ls))
-		  markerID <- rownames(rate_df)    # this gives row numbers, not marker names
-		  rate_df <- cbind(markerID=markerID, rate_df)
+		  #print("RATE_DF")
+		  #print(rate_df)
+		  rate_df <- cbind(loc_comb_df, rate_df)
 		  rate_df <- pivot_longer(rate_df, -markerID, names_prefix="V", names_to="replicate", values_to="rate")
 		  # Group the data by marker
 		  rate_df_group_by_markerID <- rate_df %>% group_by(markerID)
 		  # Get mean of all markers/replicates
 		  mean_results <- round(mean(results), 4)
+		  # Make box plot
 		  title <- paste0("Mean = ", mean_results)
-		  
-	    # need to add if statement for numeric vs character markerID
-		  #each_marker_plot <- ggplot(rate_df_group_by_markerID, aes(x=reorder(markerID, sort(as.numeric(markerID))), y=rate)) +
-		  each_marker_plot <- ggplot(rate_df_group_by_markerID, aes(x=markerID, y=rate)) +
-		  geom_boxplot(outlier.size=0.5) +
+		  each_marker_plot <- ggplot(rate_df_group_by_markerID, aes(x=fct_reorder(markerID, parse_number(markerID)), y=rate)) +
+		  geom_boxplot(fill="gray", outlier.size=0.5) +
 	    labs(title=title, x="Marker", y="Assignment rate") +
-	    theme(panel.border=element_rect(color="black", fill=NA, linewidth=1),
-	          axis.text.x = element_text(angle = 45, hjust = 1))
-	    
+		  theme_linedraw() +
+		  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+		  
 	    ggsave("Assignment_rate_for_each_marker.pdf")
 	    print(each_marker_plot)
 	   }

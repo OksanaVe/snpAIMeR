@@ -1,9 +1,9 @@
 min_range: 1
 max_range: 1
 assignment_rate_threshold: 0.9    # 0-1
-cross_validation_replicates: 10
+cross_validation_replicates: 5
 
-structure_file: "/Users/kimvertacnik/Dropbox/Post-doc/Project/SNP_Check/SNP_check/SNP_check_toy_dataset_176inds_15SNPs.str"
+structure_file: "SNP_check_toy_dataset_176inds_15SNPs.str"
 number_of_individuals: 176
 number_of_loci: 15
 one_data_row_per_individual: FALSE     # TRUE or FALSE
