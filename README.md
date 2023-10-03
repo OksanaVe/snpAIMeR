@@ -4,7 +4,7 @@ Its utility is in (1) identifying ancestry informative markers (AIMs) and (2) ev
 
 The user provides candidate markers, genotypes from known populations, and a range of combination sizes to test. Within that size range, SNP_AIMeR tests every marker combination for its ability to assign the correct population to samples with known origin.
 
-Due to the factorial growth rate, we recommend testing no more than 15 markers. For example, testing 15 markers with combination sizes 1 to 15 (15! = 1.308 E+12 combinations total) on a system with 48 cores, 192 GB RAM took xx runtime. To help with this, SNP_AIMeR automatically uses n - 1 the number of available processor cores. 
+Due to the number of possible combinations, we recommend testing no more than 15 markers. For example, testing 15 markers with a combination size range of 1 to 15 (32,767 total combinations) on a system with 48 processing cores used about 20 GB of memory and took about 5 hours. To help with this, SNP_AIMeR automatically uses n - 1 the number of available processor cores. 
 
 **Requires**
 1. A .stru (STRUCTURE) formatted genotype file. Individuals must have population assignments.
