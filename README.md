@@ -40,7 +40,7 @@ Enter assignment rate threshold (minimum rate of successful assignments):
 ## Run without interaction
 SNP_AIMeR("non-interactive", config_file)
 
-To run SNP_AIMeR non-interactively, a config file in YAML format is required. Example <here>
+To run SNP_AIMeR non-interactively, a config file in YAML format is required. Example here
 ```
 min_range: 1                                                  # Minimum combination size
 max_range: 15                                                 # Maximum combination size
@@ -62,16 +62,17 @@ genotype_character_separator:                                 # Optional
 
 With those inputs, it will randomize combinations of SNPs between the specified minimum and maximum numbers and use a priori population delimitations (via the .str file) to assess whether those SNP combinations lead to successful reassignment of a test portion of the data (20% of individuals in the dataset). 
 
-**Output**
+## Output
 During the analysis, each cluster size's replicate test data assignment rate data is displayed after the analysis for that size is complete. Plots are saved but the date is in the output csvs.
 
 
 Each candidate marker's individual assignment rate. This is the same as running min_range=1, max_range=1. Each data point is the test data assignment rate for a single replicate analysis.
 
+
 Summary of average assignment rate for each cluster size tested
 
 
-**Toy dataset**
+## Toy dataset
 A toy dataset of 15 SNPs and 176 individuals is provided here. The following commands and prompt responses will facilitate analyzing this dataset.
 ```
 > library(SNP_AIMeR)
