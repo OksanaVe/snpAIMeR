@@ -19,7 +19,7 @@ SNP_AIMeR <- function(run_mode, config_file=NULL) {
   my.cluster <- parallel::makeCluster(n.cores, type = "PSOCK")
   print(my.cluster)
   suppressWarnings(doParallel::registerDoParallel(cl = my.cluster))
-  print(class(run_mode))
+  
   run_mode <- tolower(gsub('[ -]', '', run_mode))
   
   if((run_mode == "noninteractive") & (is.null(config_file))) {
@@ -88,32 +88,33 @@ SNP_AIMeR <- function(run_mode, config_file=NULL) {
 		good_loci = data.frame(markers=character(), avg_success_rate=double())
 		
 		for(i in 1:ncol(loc_comb)){
-			tryCatch({
-				test = pop_data[,loc=loc_comb[,i]]
+			test = pop_data[,loc=loc_comb[,i]]
 
-				results <- foreach(j=1:cv_replicates, .combine='c') %dopar% {
-					tryCatch({
-						kept.id <- unlist(tapply(1:adegenet::nInd(test), adegenet::pop(test), function(e) sample(e, round(0.75*length(e),0), replace=FALSE)))
-						x <- test[kept.id]
-						x.sup <- test[-kept.id]
-						dapc4 <- adegenet::dapc(x,n.pca=50,n.da=20)
-						pred.sup <- adegenet::predict.dapc(dapc4, newdata=x.sup)
-						a <- mean(as.character(pred.sup$assign)==as.character(adegenet::pop(x.sup)))
-					}, error=function(e){})
-					return(a)
-				}
-				rt = list(results)
-				rate_ls <- append(rate_ls, rt)
-				mean_rate <- sum(results)/length(results)
-				print(paste0("Combination ", i))
-				markers = toString(loc_comb[,i])
-				cat(markers, "\n")
-				cat(mean_rate, "\n")
-				all_loci[nrow(all_loci)+1,] = c(markers, mean_rate)
-				if(mean_rate >= assignment_rate_threshold) {
-					good_loci[nrow(good_loci)+1,] = c(markers, mean_rate)
-				}
-			}, error=function(e){})
+			results <- foreach(j=1:cv_replicates, .combine='c') %dopar% {
+				tryCatch({
+					kept.id <- unlist(tapply(1:adegenet::nInd(test), adegenet::pop(test), function(e) sample(e, round(0.75*length(e),0), replace=FALSE)))
+					x <- test[kept.id]
+					x.sup <- test[-kept.id]
+					dapc4 <- adegenet::dapc(x,n.pca=50,n.da=20)
+					pred.sup <- adegenet::predict.dapc(dapc4, newdata=x.sup)
+					a <- mean(as.character(pred.sup$assign)==as.character(adegenet::pop(x.sup)))
+				}, error=function(e){
+				return(0)
+			})
+		}
+			rt = list(results)
+			rate_ls <- append(rate_ls, rt)
+			
+			markers = toString(loc_comb[,i])
+			mean_rate <- sum(results)/length(results)
+			print(paste0("Combination ", i))
+			cat(markers, "\n")
+			cat(mean_rate, "\n")
+		  # Write data to output csv files
+			all_loci[nrow(all_loci)+1,] = c(markers, mean_rate)
+			if(mean_rate >= assignment_rate_threshold) {
+				good_loci[nrow(good_loci)+1,] = c(markers, mean_rate)
+			}
 		}
 		# Make box plot of each marker's cross-validation replicates
 		if(n == 1) {
@@ -138,7 +139,7 @@ SNP_AIMeR <- function(run_mode, config_file=NULL) {
 	    ggsave("Single_marker_assignment_rate.pdf")
 	    print(each_marker_plot)
 	   }
-    # Histogram of rate distribution. Only prints to screen (intentional)
+    # Histogram of rate distribution. Only prints to screen.
 		else if(n > 1) {hist(results, main=paste0("Combinations of ", n, " markers, " , cv_replicates, " cross-validation replicates"), xlab="Assignment rate", ylab="Frequency")
 			abline(v = mean(results), col = "red", lwd = 2)
 			mtext(paste("Mean =", round(mean(results), 4)), side=3, col="red")
