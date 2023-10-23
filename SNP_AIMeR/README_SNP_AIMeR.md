@@ -15,7 +15,9 @@ Because of the number of possible combinations, we recommend testing no more tha
 
 
 ## Run interactively (user-friendly)
-SNP_AIMeR("interactive")
+```
+>SNP_AIMeR("interactive")
+```
 
 Upon executing the function, the user is prompted with the following:
 ```
@@ -40,7 +42,9 @@ Enter assignment rate threshold (minimum rate of successful assignments):
 ```
 
 ## Run without interaction
-SNP_AIMeR("non-interactive", "config_file")
+```
+>SNP_AIMeR("non-interactive", "config_file")
+```
 
 Non-interactive mode requires a config file in YAML format. Example here
 ```
@@ -49,7 +53,7 @@ max_range: 2                                                  # Maximum combinat
 assignment_rate_threshold: 0.9                                # Value from 0 to 1
 cross_validation_replicates: 1000                             # We recommend no less than 100 replicates
 
-structure_file: "SNP_check_toy_dataset_176inds_15SNPs.str"
+structure_file: "SNP_check_toy_dataset_176inds_15SNPs.str"    # File path is in quotes
 number_of_individuals: 176                                    # Same as adegenet's "n.ind"
 number_of_loci: 15                                            # Same as adegenet's "n.loc"
 one_data_row_per_individual: FALSE                            # TRUE or FALSE
@@ -63,7 +67,7 @@ genotype_character_separator:                                 # Optional
 ```
 
 ## Output
-During the analysis, after each panel size is evaluated, replicate cross-validation assignment rate data for the last combination tested is displayed in a histogram. Replicate cross-validation data is not saved but mean values are available in the output files "All_combinations_assignment_rate.csv" and "Combination_assignment_rate_means.csv". The output file "Above_threshold_assignment_rate.csv" lists the combinations with a mean correct assignment rate above the user-specifed threshold.
+During the analysis, after each panel size is evaluated, replicate cross-validation data for the last combination tested is displayed in a histogram. Cross-validation data is not saved, however, mean values are available in the output files "All_combinations_assignment_rate.csv" and "Combination_assignment_rate_means.csv". The output file "Above_threshold_assignment_rate.csv" lists the combinations with a mean correct assignment rate above the user-specifed threshold.
 
 "Single_marker_assignment_rate.pdf" is each candidate marker's individual assignment rate. This is the same as running min_range=1, max_range=1.
 <br clear="left"/>
@@ -116,4 +120,5 @@ group_1 group_2
 Minimum number of markers in combination: 10
 Maximum number of markers in combination: 15
 Enter assignment rate threshold (minimum rate of successful assignments): 0.9
+
 
