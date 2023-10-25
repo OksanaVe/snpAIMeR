@@ -1,4 +1,4 @@
-# SNP_AIMeR
+# snpAIMeR
 This R script assesses the diagnostic power of SNP combinations using leave-one-out style cross-validation. To do so, it uses [Discriminant Analysis of Principal Components](https://bmcgenomdata.biomedcentral.com/articles/10.1186/1471-2156-11-94) within [adegenet](https://github.com/thibautjombart/adegenet) as well as [pegas](https://github.com/emmanuelparadis/pegas). 
 
 Its value is in (1) identifying ancestry informative markers (AIMs) and (2) evaluating marker combinations for how well they can predict an unknown sample's population of origin. 
