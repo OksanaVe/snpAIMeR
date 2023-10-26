@@ -1,36 +1,42 @@
-# snpAIMeR
-This R script assesses the diagnostic power of SNP combinations using leave-one-out style cross-validation. To do so, it uses [Discriminant Analysis of Principal Components](https://bmcgenomdata.biomedcentral.com/articles/10.1186/1471-2156-11-94) within [adegenet](https://github.com/thibautjombart/adegenet) as well as [pegas](https://github.com/emmanuelparadis/pegas). 
+<img align="left" src="https://user-images.githubusercontent.com/131922755/278390582-0652ccaf-a4f4-41ae-8ba9-f8d81e7a115f.png" width="40%" height="40%" />
+<br clear="left"/>
+<br clear="left"/>
 
-Its value is in (1) identifying ancestry informative markers (AIMs) and (2) evaluating marker combinations for how well they can predict an unknown sample's population of origin. 
+This R function assesses the diagnostic power of SNP combinations using leave-one-out style cross-validation. To do so, it uses [Discriminant Analysis of Principal Components](https://bmcgenomdata.biomedcentral.com/articles/10.1186/1471-2156-11-94) within [adegenet](https://github.com/thibautjombart/adegenet) as well as [pegas](https://github.com/emmanuelparadis/pegas). 
 
-The user provides candidate markers, genotypes from known populations, and a range of marker combination sizes to test. Within that size range, SNP_AIMeR tests every marker combination.
+Its value is in (1) identifying ancestry informative markers (AIMs) and (2) evaluating how well different marker combinations can predict an unknown sample's population of origin. 
 
-Due to the number of possible combinations, we recommend testing no more than 15 markers. For example, testing 15 markers in combination sizes from 1 to 15 (32,767 total combinations) and 1000 cross-validation replicates on a system with 48 processor cores took about 5 hours and used about 20 GB of memory. To mitigate run time, SNP_AIMeR automatically uses n - 1 the number of available processor cores. 
+The user provides candidate markers, SNP genotypes from individuals of known origin, a range of panel sizes, and a threshold value for an acceptable rate of correct sample identification.
+
+snpAIMeR tests every marker combination within the specified minimum and maximum panel sizes. For each cross-validation replicate, individuals are randomly divided with 80% for the DAPC and 20% withheld as test samples. Results from the DAPC are used to predict the population of origin for each test individual, which is then compared with the known population label from the input file.
+
+Because of the number of possible combinations, we recommend testing no more than 15 markers. For example, testing 15 markers in panel sizes of 1 to 15 (32,767 total combinations) with 1,000 cross-validation replicates on a system with 48 processor cores took about 5 hours and 20 GB RAM. To mitigate run time, snpAIMeR automatically uses n - 1 the number of available processor cores. Reducing the number of cross-validation replicates also reduces run time, however, we recommend no less than 100 replicates.
 
 
 ## Requirements
 .stru (STRUCTURE) formatted genotype file. Individuals must have population assignments.
 
 
-## Run interactively
-SNP_AIMeR("interactive")
-
-Upon executing the function, the user is prompted with the following:
+## Run interactively (user-friendly)
+```
+>snpAIMeR("interactive")
+```
+Upon executing the function, the user is prompted with the following (do not quote the paths):
 ```
 Enter path to working directory: 
-Enter path to STRUCTURE file: 
+Enter path to STRUCTURE file:
 ```
 Then, the user is prompted (by adegenet) for information about the SNP genotype file:
 ```
- How many genotypes are there? 
- How many markers are there? 
- Which column contains labels for genotypes ('0' if absent)? 
- Which column contains the population factor ('0' if absent)? 
- Which other optional columns should be read (press 'return' when done)? 
- Which row contains the marker names ('0' if absent)? 
- Are genotypes coded by a single row (y/n)? 
+How many genotypes are there? 
+How many markers are there? 
+Which column contains labels for genotypes ('0' if absent)? 
+Which column contains the population factor ('0' if absent)? 
+Which other optional columns should be read (press 'return' when done)? 
+Which row contains the marker names ('0' if absent)? 
+Are genotypes coded by a single row (y/n)? 
 ```
-Finally, after a few messages (again from adegenet) about the data, the user will be prompted for the following:
+Finally, after a few messages about the data (again from adegenet), the user is prompted for the following:
 ```
 Minimum number of markers in combination:
 Maximum number of markers in combination: 
@@ -38,21 +44,22 @@ Enter assignment rate threshold (minimum rate of successful assignments):
 ```
 
 ## Run without interaction
-SNP_AIMeR("non-interactive", config_file)
-
-To run SNP_AIMeR non-interactively, a config file in YAML format is required. Example here
+```
+>snpAIMeR("non-interactive", "config_file")
+```
+Non-interactive mode requires a config file in YAML format. Example [here](https://github.com/OksanaVe/snpAIMeR/blob/main/snpAIMeR_config.yml)
 ```
 min_range: 1                                                  # Minimum combination size
-max_range: 15                                                 # Maximum combination size
+max_range: 2                                                  # Maximum combination size
 assignment_rate_threshold: 0.9                                # Value from 0 to 1
 cross_validation_replicates: 1000                             # We recommend no less than 100 replicates
 
-structure_file: "SNP_check_toy_dataset_176inds_15SNPs.str"
+structure_file: "SNP_check_toy_dataset_176inds_15SNPs.str"    # Path name in quotes
 number_of_individuals: 176                                    # Same as adegenet's "n.ind"
 number_of_loci: 15                                            # Same as adegenet's "n.loc"
 one_data_row_per_individual: FALSE                            # TRUE or FALSE
 column_sample_IDs: 1                                          # Column number with individual sample names
-column_population_assignments: 2                              # Column number with population information
+column_population_assignments: 2                              # Column number with individual population of origin
 column_other_info:                                            # Column number
 row_markernames: 1                                            # Row number with marker names
 no_genotype_character: -9                                     # Default is "-9"
@@ -60,48 +67,53 @@ optional_population_info:                                     # Optional
 genotype_character_separator:                                 # Optional
 ```
 
-With those inputs, it will randomize combinations of SNPs between the specified minimum and maximum numbers and use a priori population delimitations (via the .str file) to assess whether those SNP combinations lead to successful reassignment of a test portion of the data (20% of individuals in the dataset). 
-
 ## Output
-During the analysis, each cluster size's replicate test data assignment rate data is displayed after the analysis for that size is complete. Plots are saved but the date is in the output csvs.
+For each panel size, when all the combinations have been evaluated, replicate cross-validation data for the last combination is displayed as a histogram.
+* "All_combinations_assignment_rate.csv" has the mean correct assignment rate for each combination tested (average of all cross-validation replicates)
+* "Combination_assignment_rate_means.csv" has the mean correct assignment rate for each panel size tested (average of all combinations)
+* "Above_threshold_assignment_rate.csv" lists the combinations with a mean correct assignment rate above the user-specified threshold.
 
+"Single_marker_assignment_rate.pdf" is each candidate marker's individual assignment rate. This is the same as running min_range=1, max_range=1.
+<br clear="left"/>
+<img src="https://github.com/OksanaVe/SNP_check/assets/131922755/0526f289-f2c7-45ff-95f0-0214b5d4a328" align="left" width="25%" height="25%" />
+<br clear="left"/>
 
-Each candidate marker's individual assignment rate. This is the same as running min_range=1, max_range=1. Each data point is the test data assignment rate for a single replicate analysis.
-
-
-Summary of average assignment rate for each cluster size tested
+"Combination_assignment_rate_means.pdf" is a visualization of "Combination_assignment_rate_means.csv"
+<br clear="left"/>
+<img align="left" src="https://github.com/OksanaVe/SNP_check/assets/131922755/8d89dade-ca46-42e0-a9fd-703e0f2a38e7" width="25%" height="25%" />
+<br clear="left"/>
 
 
 ## Toy dataset
-A toy dataset of 15 SNPs and 176 individuals is provided here. The following commands and prompt responses will facilitate analyzing this dataset.
+A toy dataset of 15 SNPs and 176 individuals is provided [here](https://github.com/OksanaVe/SNP_check/blob/main/SNP_check_toy_dataset_176inds_15SNPs.str). The example YAML file is already setup for this dataset. For interactive mode, use the following prompt responses.
 ```
-> library(SNP_AIMeR)
-> SNP_AIMeR("interactive")
+library(snpAIMeR)
+snpAIMeR("interactive")
 Enter path to working directory: ./
 Enter path to STRUCTURE file: SNP_check_toy_dataset_176inds_15SNPs.str
 
- How many genotypes are there? 
+How many genotypes are there? 
 176
 
- How many markers are there? 
+How many markers are there? 
 15
 
- Which column contains labels for genotypes ('0' if absent)? 
+Which column contains labels for genotypes ('0' if absent)? 
 1
 
- Which column contains the population factor ('0' if absent)? 
+Which column contains the population factor ('0' if absent)? 
 2
 
- Which other optional columns should be read (press 'return' when done)? 
+Which other optional columns should be read (press 'return' when done)? 
 1: 
 
- Which row contains the marker names ('0' if absent)? 
+Which row contains the marker names ('0' if absent)? 
 1
 
- Are genotypes coded by a single row (y/n)? 
+Are genotypes coded by a single row (y/n)? 
 n
 
- Converting data from a STRUCTURE .stru file to a genind object... 
+Converting data from a STRUCTURE .stru file to a genind object... 
 
 Data file contains  15  markers
 File contains the following group definitions:
@@ -110,10 +122,4 @@ group_1 group_2
 Minimum number of markers in combination: 10
 Maximum number of markers in combination: 15
 Enter assignment rate threshold (minimum rate of successful assignments): 0.9
-
-
-
-
-
-
 
