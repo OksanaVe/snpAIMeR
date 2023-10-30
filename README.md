@@ -90,7 +90,7 @@ A toy dataset of 15 SNPs and 176 individuals is provided [here](https://github.c
 library(snpAIMeR)
 snpAIMeR("interactive")
 Enter path to working directory: ./
-Enter path to STRUCTURE file: SNP_check_toy_dataset_176inds_15SNPs.str
+Enter path to STRUCTURE file: snpAIMeR_toy_dataset_176inds_15SNPs.str
 
 How many genotypes are there? 
 176
