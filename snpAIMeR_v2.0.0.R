@@ -62,7 +62,7 @@ snpAIMeR <- function(run_mode, config_file=NULL) {
   
     min_loc_num <- as.integer(readline(prompt="Minimum number of markers in combination: "))
     max_loc_num <- as.integer(readline(prompt="Maximum number of markers in combination: "))
-    assignment_rate_threshold <- as.double(readline(prompt="Enter threshold value for the minimum rate of successful assignments: "))
+    assignment_rate_threshold <- as.double(readline(prompt="Threshold value for the minimum rate of successful assignments: "))
 	cv_replicates <- as.integer(readline(prompt="Number of cross-validation replicates: "))
   }
 

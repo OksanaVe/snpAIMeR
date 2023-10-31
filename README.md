@@ -21,7 +21,7 @@ Because of the number of possible combinations, we recommend testing no more tha
 ```
 >snpAIMeR("interactive")
 ```
-Upon executing the function, the user is prompted with the following (do not quote the paths):
+Upon executing the function, the user is prompted with the following (do not quote paths):
 ```
 Enter path to working directory: 
 Enter path to STRUCTURE file:
@@ -39,8 +39,9 @@ Are genotypes coded by a single row (y/n)?
 Finally, after a few messages about the data (again from adegenet), the user is prompted for the following:
 ```
 Minimum number of markers in combination:
-Maximum number of markers in combination: 
-Enter assignment rate threshold (minimum rate of successful assignments): 
+Maximum number of markers in combination:
+Assignment rate threshold (minimum rate of successful assignments):
+Number of cross-validation replicates:
 ```
 
 ## Run without interaction
@@ -53,6 +54,7 @@ min_range: 1                                                  # Minimum combinat
 max_range: 2                                                  # Maximum combination size
 assignment_rate_threshold: 0.9                                # Value from 0 to 1
 cross_validation_replicates: 1000                             # We recommend no less than 100 replicates
+working_directory:                                            # Path name in quotes; use "./" for current directory
 
 structure_file: "SNP_check_toy_dataset_176inds_15SNPs.str"    # Path name in quotes
 number_of_individuals: 176                                    # Same as adegenet's "n.ind"
@@ -85,9 +87,8 @@ For each panel size, when all the combinations have been evaluated, replicate cr
 
 
 ## Toy dataset
-A toy dataset of 15 SNPs and 176 individuals is provided [here](https://github.com/OksanaVe/SNP_check/blob/main/SNP_check_toy_dataset_176inds_15SNPs.str). The example YAML file is already setup for this dataset. For interactive mode, use the following prompt responses.
+A toy dataset of 5 SNPs and 176 individuals is provided [here](https://github.com/OksanaVe/snpAIMeR/blob/main/snpAIMeR_toy_dataset_176inds_5SNPs.str). The example YAML file is already setup for this dataset. For interactive mode, use the following prompt responses.
 ```
-library(snpAIMeR)
 snpAIMeR("interactive")
 Enter path to working directory: ./
 Enter path to STRUCTURE file: snpAIMeR_toy_dataset_176inds_15SNPs.str
@@ -96,7 +97,7 @@ How many genotypes are there?
 176
 
 How many markers are there? 
-15
+5
 
 Which column contains labels for genotypes ('0' if absent)? 
 1
@@ -115,11 +116,12 @@ n
 
 Converting data from a STRUCTURE .stru file to a genind object... 
 
-Data file contains  15  markers
+Data file contains  5  markers
 File contains the following group definitions:
 group_1 group_2 
     120      56 
-Minimum number of markers in combination: 10
-Maximum number of markers in combination: 15
-Enter assignment rate threshold (minimum rate of successful assignments): 0.9
+Minimum number of markers in combination: 1
+Maximum number of markers in combination: 5
+Assignment rate threshold (minimum rate of successful assignments): 0.9
+Number of cross-validation replicates: 100
 
