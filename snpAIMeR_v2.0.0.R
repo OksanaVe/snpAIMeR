@@ -29,6 +29,7 @@ snpAIMeR <- function(run_mode, config_file=NULL) {
     config = yaml.load_file(config_file)
 
     # SNP_AIMeR settings
+    setwd(config$working_directory)
     min_loc_num <- as.integer(config$min_range)
     max_loc_num <- as.integer(config$max_range)
     assignment_rate_threshold <- as.double(config$assignment_rate_threshold)
@@ -62,8 +63,7 @@ snpAIMeR <- function(run_mode, config_file=NULL) {
     min_loc_num <- as.integer(readline(prompt="Minimum number of markers in combination: "))
     max_loc_num <- as.integer(readline(prompt="Maximum number of markers in combination: "))
     assignment_rate_threshold <- as.double(readline(prompt="Enter threshold value for the minimum rate of successful assignments: "))
-
-    cv_replicates <- 1000
+	cv_replicates <- as.integer(readline(prompt="Number of cross-validation replicates: "))
   }
 
 	df = data.frame(marker=character(), avg_success_rate=double())
