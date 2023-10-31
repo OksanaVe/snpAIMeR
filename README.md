@@ -36,7 +36,7 @@ Which other optional columns should be read (press 'return' when done)?
 Which row contains the marker names ('0' if absent)? 
 Are genotypes coded by a single row (y/n)? 
 ```
-Finally, after a few messages about the data (again from adegenet), the user is prompted for the following (we recommend no less than 100 cross-validation replicates:
+Finally, after a few messages about the data (again from adegenet), the user is prompted for the following (we recommend no less than 100 cross-validation replicates):
 ```
 Minimum number of markers in combination:
 Maximum number of markers in combination:
