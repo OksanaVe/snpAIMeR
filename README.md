@@ -36,7 +36,7 @@ Which other optional columns should be read (press 'return' when done)?
 Which row contains the marker names ('0' if absent)? 
 Are genotypes coded by a single row (y/n)? 
 ```
-Finally, after a few messages about the data (again from adegenet), the user is prompted for the following:
+Finally, after a few messages about the data (again from adegenet), the user is prompted for the following (we recommend no less than 100 cross-validation replicates:
 ```
 Minimum number of markers in combination:
 Maximum number of markers in combination:
@@ -51,14 +51,14 @@ Number of cross-validation replicates:
 Non-interactive mode requires a config file in YAML format. Example [here](https://github.com/OksanaVe/snpAIMeR/blob/main/snpAIMeR_config.yml)
 ```
 min_range: 1                                                  # Minimum combination size
-max_range: 2                                                  # Maximum combination size
+max_range: 5                                                  # Maximum combination size
 assignment_rate_threshold: 0.9                                # Value from 0 to 1
-cross_validation_replicates: 1000                             # We recommend no less than 100 replicates
-working_directory:                                            # Path name in quotes; use "./" for current directory
+cross_validation_replicates: 100                              # We recommend no less than 100 replicates
+working_directory: "./"                                       # Path name in quotes; use "./" for current directory
 
-structure_file: "SNP_check_toy_dataset_176inds_15SNPs.str"    # Path name in quotes
+structure_file: "snpAIMeR_toy_dataset_176inds_5SNPs.str"      # Path name in quotes
 number_of_individuals: 176                                    # Same as adegenet's "n.ind"
-number_of_loci: 15                                            # Same as adegenet's "n.loc"
+number_of_loci: 5                                             # Same as adegenet's "n.loc"
 one_data_row_per_individual: FALSE                            # TRUE or FALSE
 column_sample_IDs: 1                                          # Column number with individual sample names
 column_population_assignments: 2                              # Column number with individual population of origin
