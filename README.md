@@ -17,6 +17,11 @@ Because of the number of possible combinations, we recommend testing no more tha
 .stru (STRUCTURE) formatted genotype file. Individuals must have population assignments.
 
 
+## Usage
+```
+snpAIMeR(run_mode, config_file = NULL, verbose = TRUE)
+```
+
 ## Run interactively (user-friendly)
 ```
 >snpAIMeR("interactive")
@@ -71,16 +76,16 @@ genotype_character_separator:                                 # Optional
 
 ## Output
 For each panel size, when all the combinations have been evaluated, replicate cross-validation data for the last combination is displayed as a histogram.
-* "All_combinations_assignment_rate.csv" has the mean correct assignment rate for each combination tested (average of all cross-validation replicates)
-* "Combination_assignment_rate_means.csv" has the mean correct assignment rate for each panel size tested (average of all combinations)
-* "Above_threshold_assignment_rate.csv" lists the combinations with a mean correct assignment rate above the user-specified threshold.
+* "All_combinations_assign_rate.csv" has the mean correct assignment rate for each combination tested (average of all cross-validation replicates)
+* "Panel_size_assign_rate.csv" has the mean correct assignment rate for each panel size tested (average of all combinations)
+* "Above_threshold_assign_rate.csv" lists the combinations with a mean correct assignment rate above the user-specified threshold.
 
 "Single_marker_assignment_rate.pdf" is each candidate marker's individual assignment rate. This is the same as running min_range=1, max_range=1.
 <br clear="left"/>
 <img src="https://github.com/OksanaVe/SNP_check/assets/131922755/0526f289-f2c7-45ff-95f0-0214b5d4a328" align="left" width="25%" height="25%" />
 <br clear="left"/>
 
-"Combination_assignment_rate_means.pdf" is a visualization of "Combination_assignment_rate_means.csv"
+"Panel_size_assign_rate.pdf" is a visualization of "Panel_size_assign_rate.csv"
 <br clear="left"/>
 <img align="left" src="https://github.com/OksanaVe/SNP_check/assets/131922755/8d89dade-ca46-42e0-a9fd-703e0f2a38e7" width="25%" height="25%" />
 <br clear="left"/>
