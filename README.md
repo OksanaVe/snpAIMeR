@@ -7,7 +7,7 @@ Its value is in (1) identifying ancestry informative markers (AIMs) and (2) eval
 
 The user provides candidate markers, SNP genotypes from individuals of known origin, a range of panel sizes, and a threshold value for an acceptable rate of correct sample identification.
 
-snpAIMeR tests every marker combination within the specified minimum and maximum panel sizes. For each cross-validation replicate, individuals are randomly divided with 80% for the DAPC and 20% withheld as test samples. Results from the DAPC are used to predict the population of origin for each test individual, which is then compared with the known population label from the input file.
+snpAIMeR tests every marker combination within the specified minimum and maximum panel sizes. For each cross-validation replicate, individuals are randomly divided with 75% for the DAPC and 25% withheld as test samples. Results from the DAPC are used to predict the population of origin for each test individual, which is then compared with the known population label from the input file.
 
 Because of the number of possible combinations, we recommend testing no more than 15 markers. For example, testing 15 markers in panel sizes of 1 to 15 (32,767 total combinations) with 1,000 cross-validation replicates on a system with 48 processor cores took about 5 hours and 20 GB RAM. To mitigate run time, snpAIMeR automatically uses n - 1 the number of available processor cores. Reducing the number of cross-validation replicates also reduces run time, however, we recommend no less than 100 replicates.
 
