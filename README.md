@@ -2,6 +2,8 @@
 <br clear="left"/>
 <br clear="left"/>
 
+--> snpAIMeR is available on CRAN
+
 This R package assesses the diagnostic power of SNP combinations using leave-one-out style cross-validation. To do so, it uses [Discriminant Analysis of Principal Components](https://bmcgenomdata.biomedcentral.com/articles/10.1186/1471-2156-11-94) within the [adegenet](https://github.com/thibautjombart/adegenet) R package.
 Its value is in (1) identifying ancestry informative markers (AIMs) and (2) evaluating how well different marker combinations can predict an unknown sample's population of origin. 
 
