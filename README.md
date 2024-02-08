@@ -15,7 +15,7 @@ Because of the number of possible combinations, we recommend testing no more tha
 
 
 ## Requirements
-.stru (STRUCTURE) formatted genotype file. Individuals must have population assignments.
+.stru (STRUCTURE) formatted genotype file. Individuals must have population assignments. For file conversion from other formats (plink, vcf, etc.), please see [PGDSpider](http://cmpg.unibe.ch/software/PGDSpider/index.htm).
 
 
 ## Usage
